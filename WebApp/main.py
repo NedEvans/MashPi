@@ -1,12 +1,10 @@
 import thing
-
+import datetime
 from flask import *
-
 
 # Create flask app and global pi 'thing' object.
 app = Flask(__name__)
 pi_thing = thing.PiThing()
-
 
 # Define app routes.
 # Index route renders the main HTML page.

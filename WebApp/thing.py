@@ -48,7 +48,7 @@ class PiThing(object):
         '''Set Inputs'''
         '''need to add temp sensors as input through MCP3008 ADC'''
         GPIO.setup(FLOW_PIN, GPIO.IN)
-        GPIO.setup(SWITCH_PIN, GPIO.IN)
+        GPIO.setup(SWITCH_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
     def read_switch(self):
         """Read the switch state and return its current value.
