@@ -1,19 +1,23 @@
 import time
 
-import thing
+import mashthing
 
 
 # Create the pi thing.
-pi_thing = thing.PiThing()
+mash_thing = mashthing.MashThing()
 
 # Print the current switch state.
-switch = pi_thing.read_switch()
+switch = mash_thing.read_switch()
 print('Switch status: {0}'.format(switch))
 
-# Now loop forever blinking the LED.
+# Now loop forever blinking the LED and reading temp/humidity.
 print('Looping with LED blinking (Ctrl-C to quit)...')
 while True:
-    pi_thing.set_led(True)
+    # Blink the LED.
+    mash_thing.set_led(True)
     time.sleep(0.5)
-    pi_thing.set_led(False)
+    mash_thing.set_led(False)
     time.sleep(0.5)
+    # Get temp & humidity and print them out.
+    temperature = mash_thing.get_temperature()
+    print('Temperature: {0:0.2F}C'.format(temperature))
