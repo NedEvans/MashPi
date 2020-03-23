@@ -37,7 +37,7 @@ class MashThing(object):
         GPIO.setup(HEATER_1_PIN, GPIO.OUT)
         GPIO.setup(HEATER_2_PIN, GPIO.OUT)
         GPIO.setup(HEATER_1_PIN, GPIO.OUT)
-        GPIO.setup(SOLENOID_1_PIN, GPIO.OUT)
+        GPIO.setup(SOLENOID_1_PIN, GPIO.OUT) #HLT Fill Valve
         GPIO.setup(SOLENOID_2_PIN, GPIO.OUT)
         GPIO.setup(SOLENOID_3_PIN, GPIO.OUT)
         GPIO.setup(SOLENOID_4_PIN, GPIO.OUT)
@@ -47,13 +47,13 @@ class MashThing(object):
         GPIO.setup(SOLENOID_8_PIN, GPIO.OUT)
         GPIO.setup(SOLENOID_9_PIN, GPIO.OUT)
         GPIO.setup(SOLENOID_10_PIN, GPIO.OUT)
-        
+
         GPIO.setup(LED_PIN, GPIO.OUT)
-        
+
         '''Set Inputs'''
         GPIO.setup(FLOW_PIN, GPIO.IN)
         GPIO.setup(SWITCH_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        
+
         # Create a lock to syncronize access to hardware from multiple threads.
         self._lock = threading.Lock()
         # Setup a thread to read the ADC sensor MCP3008 every 2 seconds and store
@@ -61,8 +61,8 @@ class MashThing(object):
         self._temperature = None
         self._adc_thread = threading.Thread(target=self._update_adc)
         self._adc_thread.daemon = True  # Don't let this thread block exiting.
-        self._adc_thread.start()        
-        
+        self._adc_thread.start()
+
     def _update_adc(self):
         """Main function for DHT update thread, will grab new temp & humidity
         values every two seconds.
@@ -80,7 +80,7 @@ class MashThing(object):
         """Get the most recent temperature value (in degrees Celsius)."""
         with self._lock:
             return self._temperature
-            
+
     def read_switch(self):
         """Read the switch state and return its current value.
         """
@@ -111,17 +111,17 @@ class MashThing(object):
         """Set the heater_3 to the provided value (True = on, False = off)."""
         with self._lock:
             GPIO.output(HEATER_3_PIN, value)
-        
+
     def set_solenoid_1(self, value):
         """Set the solenoid_1 to the provided value (True = on, False = off)."""
         with self._lock:
             GPIO.output(SOLENOID_1_PIN, value)
-        
+
     def set_solenoid_2(self, value):
         """Set the solenoid_2 to the provided value (True = on, False = off)."""
         with self._lock:
             GPIO.output(SOLENOID_2_PIN, value)
-        
+
     def set_solenoid_3(self, value):
         """Set the solenoid_3 to the provided value (True = on, False = off)."""
         with self._lock:
@@ -141,22 +141,22 @@ class MashThing(object):
         """Set the solenoid_6 to the provided value (True = on, False = off)."""
         with self._lock:
             GPIO.output(SOLENOID_6_PIN, value)
-        
+
     def set_solenoid_7(self, value):
         """Set the solenoid_7 to the provided value (True = on, False = off)."""
         with self._lock:
             GPIO.output(SOLENOID_7_PIN, value)
-        
+
     def set_solenoid_8(self, value):
         """Set the solenoid_8 to the provided value (True = on, False = off)."""
         with self._lock:
             GPIO.output(SOLENOID_8_PIN, value)
-        
+
     def set_solenoid_9(self, value):
         """Set the solenoid_9 to the provided value (True = on, False = off)."""
         with self._lock:
             GPIO.output(SOLENOID_9_PIN, value)
-        
+
     def set_solenoid_10(self, value):
         """Set the solenoid_10 to the provided value (True = on, False = off)."""
         with self._lock:
