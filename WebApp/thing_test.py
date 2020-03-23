@@ -19,5 +19,5 @@ while True:
     mash_thing.set_led(False)
     time.sleep(0.5)
     # Get temp & humidity and print them out.
-    temperature = mash_thing.get_temperature()
+    temperature = mash_thing.read_temperature_0()
     print('Temperature: {0:0.2F}C'.format(temperature))
