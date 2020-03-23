@@ -22,11 +22,8 @@ hlt='empty'
 mash='empty'
 herms=0 #step number 0-not started
 
-#temporary variables to be replaced by GPIO input
-hlt_temp=0.0 #temperature of Hot Liquir Tun
-he_temp=0.0
-
 def initialise():
+    #Turn all valves off at start
     mash_thing.set_pump(False)
     mash_thing.set_heater_1(False)
     mash_thing.set_heater_2(False)
@@ -42,43 +39,29 @@ def initialise():
     mash_thing.set_solenoid_9(False)
     mash_thing.set_solenoid_10(False)
 
-
-def hlt_on():
-    #convert variables to global
-    global brew_started
-    global step1_temp
-    global hlt_temp
-    global hlt_full
-    #if hlt is empty start filling
-    if hlt=='empty' or hlt=='sparge':
-        print('open tap to fill HLT')
-        mash_thing.set_solenoid_1(True) #turn on hLT fill Tap
-        hlt='Filling'
-#wait for water to get above the heaters on first filling.
-#on second filling hlt will not be emtpy and therefore do not need to wait
-        if hlt=='empty':
-            time.sleep(600)
-#set temp depending on brew progress
-    if hlt='empty':
-        temp=step1_temp
-    else:
-        temp=sparge_temp
-# turn heaters on and off to maintaintemp
-    if hlt_temp < temp-0.5:
+def hlt_start():
+    global hlt
+    print('open tap to fill HLT')
+    mash_thing.set_solenoid_1(True) #turn on hLT fill Tap
+    time.sleep(600)
+# turn heaters on and off to maintain temp
+    if hlt_temp < step1_temp-0.5:
         print('turn HLT heaters on')
         mash_thing.set_heater_1(True)
         mash_thing.set_heater_2(True)
-    if hlt_temp >= temp+0.5:
+    if hlt_temp >= step1_temp+0.5:
         print('turn HLT heaters off')
         mash_thing.set_heater_1(False)
         mash_thing.set_heater_2(False)
+    hlt='filling'  #change state
 
 def fill_mashtun():
-    #if mashtun is empty open valves in preperation of filling
-    if mash=='empty':
-        print('open HLT Drain Valve')
-        print('open mash tun fill Valve')
-        mash='filling'  #change state
+    #open valves in preperation of filling
+    print('open mash tun fill Valve')
+    mash_thing.set_solenoid_3(True)
+    print('open HLT Drain Valve')
+    mash_thing.set_solenoid_2(True)
+    mash='filling'  #change state
     if flowmeter.tally()<=Volume and mash=='filling': #fill mash tun withthe required volume
         print('turn pump on')
     else: #once full turn pump and valves off
@@ -103,13 +86,14 @@ def start_herms():
 #define callback function to call when the HLT is full
 def stopFillingHLT(channel):
     print('Stop Filling HLT')
+    mash_thing.set_solenoid_1(False)
     hlt='full'
 
 GPIO.add_event_detect(24, GPIO.RISING, callback=stopFillingHLT, bouncetime=1000)
 
 # Print the current switch state.
-switch = pi_thing.read_switch()
-print('Switch status: {0}'.format(switch))
+#switch = pi_thing.read_switch()
+#print('Switch status: {0}'.format(switch))
 
 while True:
     initialise()
@@ -118,7 +102,10 @@ while True:
     print(now)
     if now==start_time:
         print("start time met")
-        hlt_on()
+        hlt_temp=mash_thing.read_temperatur_0()
+        if hlt=='empty':
+            hlt_start()
         if hlt_temp == step1_temp:
-            fill_mashtun()
+            if mash=='empty':
+                fill_mashtun()
             start_herms()

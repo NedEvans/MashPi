@@ -38,8 +38,8 @@ class MashThing(object):
         GPIO.setup(HEATER_2_PIN, GPIO.OUT)
         GPIO.setup(HEATER_1_PIN, GPIO.OUT)
         GPIO.setup(SOLENOID_1_PIN, GPIO.OUT) #HLT Fill Valve
-        GPIO.setup(SOLENOID_2_PIN, GPIO.OUT)
-        GPIO.setup(SOLENOID_3_PIN, GPIO.OUT)
+        GPIO.setup(SOLENOID_2_PIN, GPIO.OUT) #HLT drain Valve
+        GPIO.setup(SOLENOID_3_PIN, GPIO.OUT) #Mash Tun Fill Valve
         GPIO.setup(SOLENOID_4_PIN, GPIO.OUT)
         GPIO.setup(SOLENOID_5_PIN, GPIO.OUT)
         GPIO.setup(SOLENOID_6_PIN, GPIO.OUT)
@@ -64,22 +64,52 @@ class MashThing(object):
         self._adc_thread.start()
 
     def _update_adc(self):
-        """Main function for DHT update thread, will grab new temp & humidity
-        values every two seconds.
-        """
+        """Main function for ADC update thread, will grab new temp values every two seconds."""
         T0=MCP3008(0)
+        T1=MCP3008(1)
+        T2=MCP3008(2)
+        counter=0
         while True:
             with self._lock:
-                # Read the humidity and temperature from the DHT sensor.
-                V=T0.value*3.3
-                self._temperature = (10.617*math.pow(V,4))-(65.957*math.pow(V,3))+(155.58*math.pow(V,2))-(197.45*V)+146.08
-            # Wait 2 seconds then repeat.
+                # Read the temperature from the ADC and deliver weighted average
+                V0=T0.value*3.3
+                V1=T1.value*3.3
+                V2=T2.value*3.3
+                if counter ==0:
+                    temp_a0 = (10.617*math.pow(V0,4))-(65.957*math.pow(V0,3))+(155.58*math.pow(V0,2))-(197.45*V0)+146.08
+                    temp_a1 = (10.617*math.pow(V1,4))-(65.957*math.pow(V1,3))+(155.58*math.pow(V1,2))-(197.45*V1)+146.08
+                    temp_a2 = (10.617*math.pow(V2,4))-(65.957*math.pow(V2,3))+(155.58*math.pow(V2,2))-(197.45*V2)+146.08
+                if counter ==1:
+                    temp_b0 = (10.617*math.pow(V0,4))-(65.957*math.pow(V0,3))+(155.58*math.pow(V0,2))-(197.45*V0)+146.08
+                    temp_b1 = (10.617*math.pow(V1,4))-(65.957*math.pow(V1,3))+(155.58*math.pow(V1,2))-(197.45*V1)+146.08
+                    temp_b2 = (10.617*math.pow(V2,4))-(65.957*math.pow(V2,3))+(155.58*math.pow(V2,2))-(197.45*V2)+146.08
+                if counter ==2:
+                    temp_c0 = (10.617*math.pow(V0,4))-(65.957*math.pow(V0,3))+(155.58*math.pow(V0,2))-(197.45*V0)+146.08
+                    temp_c1 = (10.617*math.pow(V1,4))-(65.957*math.pow(V1,3))+(155.58*math.pow(V1,2))-(197.45*V1)+146.08
+                    temp_c2 = (10.617*math.pow(V2,4))-(65.957*math.pow(V2,3))+(155.58*math.pow(V2,2))-(197.45*V2)+146.08
+                counter=counter+1
+                if counter==3:
+                    counter=0
+                self._temperature_0=(temp_a0+temp_b0+temp_c0)/3
+                self._temperature_1=(temp_a1+temp_b1+temp_c1)/3
+                self._temperature_2=(temp_a2+temp_b2+temp_c2)/3
+                # Wait 2 seconds then repeat.
             time.sleep(2.0)
 
-    def get_temperature(self):
+    def read_temperatur_0(self):
         """Get the most recent temperature value (in degrees Celsius)."""
         with self._lock:
-            return self._temperature
+            return self._temperature_0
+
+    def read_temperatur_1(self):
+        """Get the most recent temperature value (in degrees Celsius)."""
+        with self._lock:
+            return self._temperature_1
+
+    def read_temperatur_2(self):
+        """Get the most recent temperature value (in degrees Celsius)."""
+        with self._lock:
+            return self._temperature_2
 
     def read_switch(self):
         """Read the switch state and return its current value.
