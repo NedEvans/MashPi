@@ -69,6 +69,15 @@ class MashThing(object):
         T1=MCP3008(1)
         T2=MCP3008(2)
         counter=0
+        temp_a0=0
+        temp_a1=0
+        temp_a2=0
+        temp_b0=0
+        temp_b1=0
+        temp_b2=0
+        temp_c0=0
+        temp_c1=0
+        temp_c2=0
         while True:
             with self._lock:
                 # Read the temperature from the ADC and deliver weighted average
@@ -96,17 +105,17 @@ class MashThing(object):
                 # Wait 2 seconds then repeat.
             time.sleep(2.0)
 
-    def read_temperatur_0(self):
+    def read_temperature_0(self):
         """Get the most recent temperature value (in degrees Celsius)."""
         with self._lock:
             return self._temperature_0
 
-    def read_temperatur_1(self):
+    def read_temperature_1(self):
         """Get the most recent temperature value (in degrees Celsius)."""
         with self._lock:
             return self._temperature_1
 
-    def read_temperatur_2(self):
+    def read_temperature_2(self):
         """Get the most recent temperature value (in degrees Celsius)."""
         with self._lock:
             return self._temperature_2

@@ -37,7 +37,7 @@ def thing():
             # Build up a dict of the current thing state.
             thing_state = {
                 'switch': mash_thing.read_switch(),
-                'temperature': mash_thing.get_temperature(),
+                'temperature': mash_thing.read_temperature_0(),
                 #'humidity': pi_thing.get_humidity()
             }
             # Send the thing state as a JSON object.
