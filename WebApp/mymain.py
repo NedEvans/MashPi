@@ -14,10 +14,13 @@ mash_thing = mashthing.MashThing()
 def index():
     # Read the current switch state to pass to the template.
     switch = mash_thing.read_switch()
+    pump=mash_thing.read_pump()
     # Render index.html template.
-    return render_template('index.html', switch=switch)
+    return render_template('index.html', switch=switch, pump=pump)
+    
 
 # LED route allows changing the LED state with a POST request.
+# user control of uotput state
 @app.route("/led/<int:state>", methods=['POST'])
 def led(state):
     # Check if the led state is 0 (off) or 1 (on) and set the LED accordingly.
@@ -30,6 +33,7 @@ def led(state):
     return ('', 204)
 
 # Server-sent event endpoint that streams the thing state every second.
+# streaming input states - display input state!
 @app.route('/thing')
 def thing():
     def get_thing_values():
@@ -37,6 +41,7 @@ def thing():
             # Build up a dict of the current thing state.
             thing_state = {
                 'switch': mash_thing.read_switch(),
+                'pump': mash_thing.read_pump(),
                 'temperature': mash_thing.read_temperature_0(),
                 #'humidity': pi_thing.get_humidity()
             }

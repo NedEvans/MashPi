@@ -135,6 +135,12 @@ class MashThing(object):
         """Set the pump to the provided value (True = on, False = off)."""
         with self._lock:
             GPIO.output(PUMP_PIN, value)
+            
+    def read_pump(self):
+        """Read the pump state and return its current value.
+        """
+        with self._lock:
+            return GPIO.input(PUMP_PIN)
 
     def set_heater_1(self, value):
         """Set the heater_1 to the provided value (True = on, False = off)."""
