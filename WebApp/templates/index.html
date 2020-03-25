@@ -22,6 +22,7 @@
             </div>
           </div>
         </nav>
+        <!-- top row -->
         <div class="container">
           <div class="row">
             <div class="col-sm-2">
@@ -37,7 +38,7 @@
             </div>
           </div>
         </div>
-        
+        <!-- second row -->
         <div class="container">
           <div class="row">
             <div class="col-sm-6">
@@ -127,7 +128,7 @@
             switchSource.onmessage = function(e) {
               updateThing($.parseJSON(e.data));
             }
-            
+
             // Setup thing state server sent event receiver.
             var pumpSource = new EventSource("{{ url_for('thing') }}");
             pumpSource.onmessage = function(e) {
@@ -135,6 +136,7 @@
             }
 
             // Set the switch based on the value passed to this template.
+            updateSwitch('{{ switch }}');
             updatePump('{{ pump }}');
           });
         </script>

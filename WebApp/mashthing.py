@@ -4,7 +4,7 @@ import time
 from gpiozero import MCP3008
 import math
 
-
+#Outputs
 PUMP_PIN = 2
 HEATER_1_PIN = 3
 HEATER_2_PIN = 4
@@ -19,8 +19,12 @@ SOLENOID_7_PIN = 14
 SOLENOID_8_PIN = 18
 SOLENOID_9_PIN = 13
 SOLENOID_10_PIN = 22
-FLOW_PIN = 23
 
+#inputs
+FLOW_PIN = 23
+HLT_FULL_PIN=6
+
+#pins from tutorial
 SWITCH_PIN  = 24
 LED_PIN     = 25
 
@@ -47,10 +51,10 @@ class MashThing(object):
         GPIO.setup(SOLENOID_8_PIN, GPIO.OUT)
         GPIO.setup(SOLENOID_9_PIN, GPIO.OUT)
         GPIO.setup(SOLENOID_10_PIN, GPIO.OUT)
-
         GPIO.setup(LED_PIN, GPIO.OUT)
 
         '''Set Inputs'''
+        GPIO.setup(HLT_FULL_PIN, GPIO.IN)
         GPIO.setup(FLOW_PIN, GPIO.IN)
         GPIO.setup(SWITCH_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
@@ -135,7 +139,7 @@ class MashThing(object):
         """Set the pump to the provided value (True = on, False = off)."""
         with self._lock:
             GPIO.output(PUMP_PIN, value)
-            
+
     def read_pump(self):
         """Read the pump state and return its current value.
         """
@@ -206,3 +210,8 @@ class MashThing(object):
         """Set the solenoid_10 to the provided value (True = on, False = off)."""
         with self._lock:
             GPIO.output(SOLENOID_10_PIN, value)
+
+    def read_hlt_full(self):
+        """Read the switch state and return its current value. """
+        with self._lock:
+            return GPIO.input(HLT_FULL_PIN)
