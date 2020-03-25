@@ -39,21 +39,24 @@ def initialise():
     mash_thing.set_solenoid_9(False)
     mash_thing.set_solenoid_10(False)
 
-def hlt_start():
+def hlt_fill():
     global hlt
     print('open tap to fill HLT')
     mash_thing.set_solenoid_1(True) #turn on hLT fill Tap
-    time.sleep(600)
+    if hlt=='empty': #when hlt is empty pause to allow water to fil past the heaters
+        time.sleep(600) # pause for 10 mins
+    hlt='filling'  #change state to stop the above pause and the call from main loop
+
+def maintain_hlt_temp(temperature):
 # turn heaters on and off to maintain temp
-    if hlt_temp < step1_temp-0.5:
+    if hlt_temp < temperature-0.5:
         print('turn HLT heaters on')
         mash_thing.set_heater_1(True)
         mash_thing.set_heater_2(True)
-    if hlt_temp >= step1_temp+0.5:
+    if hlt_temp >= temperature+0.5:
         print('turn HLT heaters off')
         mash_thing.set_heater_1(False)
         mash_thing.set_heater_2(False)
-    hlt='filling'  #change state
 
 def fill_mashtun():
     #open valves in preperation of filling
@@ -96,16 +99,21 @@ GPIO.add_event_detect(24, GPIO.RISING, callback=stopFillingHLT, bouncetime=1000)
 #print('Switch status: {0}'.format(switch))
 
 while True:
-    initialise()
-    time.sleep(1)
+    initialise() #set all solenoids to false
+    time.sleep(1) #set timing cycle
+    # check time to start has been reached
     now = datetime.datetime.now()
     print(now)
     if now==start_time:
+    # proceed once time to start has been reached
         print("start time met")
-        hlt_temp=mash_thing.read_temperatur_0()
+        hlt_temp=mash_thing.read_temperatur_0() #read hlt temp.
+        # fill hlt only on first cycle. subsequent cycles hlt will not be set to empty
         if hlt=='empty':
-            hlt_start()
-        if hlt_temp == step1_temp:
-            if mash=='empty':
-                fill_mashtun()
+            hlt_fill() #start filling hlt and change state to "filling" to stop this call on subsequent loops
+        maintain_hlt_temp(step1_temp) #turn heaters on and off to maintain the temp
+        #once step 1 temp reached in hlt pump water to mash tun
+        if hlt_temp == step1_temp: #temp reached
+            if mash=='empty': #fill mash tun on first cycle only thenchange state to stop call.
+                fill_mashtun() #start filling mash
             start_herms()
